@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grocery Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6f1e7; --card:#fffdf8; --ink:#1d1b17; --muted:#8a8275; --line:#e6dfd0;
+  --accent:#e2513a; --accent-soft:#fbe3dc; --leaf:#3f7d4e; --leaf-soft:#e1efe3; --amber:#c98a1b;
+  --r:14px; --shadow:0 1px 0 rgba(29,27,23,.04),0 8px 24px -12px rgba(29,27,23,.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.45 "Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(rgba(29,27,23,.035) 1px,transparent 1px);background-size:18px 18px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px}
+
+/* header */
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+h1{font:700 clamp(34px,5vw,52px)/.95 Fraunces,serif;letter-spacing:-.02em;margin:0}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{color:var(--muted);margin-top:8px;font-size:14px}
+.hbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:500}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--leaf);box-shadow:0 0 0 3px var(--leaf-soft)}
+.pill.demo .dot{background:var(--amber);box-shadow:0 0 0 3px #f6e7c8}
+button.pill:hover{border-color:var(--ink)}
+.av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;color:#fff;flex:none}
+
+/* layout */
+.grid{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card h2{font:700 22px/1 Fraunces,serif;margin:0;letter-spacing:-.01em}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:20px 22px 0}
+.count{font:500 12px "JetBrains Mono",monospace;color:var(--muted)}
+
+/* add bar */
+.add{display:grid;grid-template-columns:1fr 90px 140px auto;gap:8px;padding:18px 22px;border-bottom:1px dashed var(--line)}
+.add input,.add select{height:44px;border:1px solid var(--line);border-radius:10px;background:var(--paper);padding:0 12px;outline:none;min-width:0}
+.add input:focus,.add select:focus{border-color:var(--ink);background:#fff}
+.add .qty{font-family:"JetBrains Mono",monospace;font-size:13px}
+.btn{height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--ink);color:var(--paper);font-weight:600}
+.btn:hover{background:var(--accent)}
+
+/* list */
+.list{padding:6px 0 10px}
+.cat{padding:14px 22px 4px;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.cat i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.row{display:grid;grid-template-columns:26px 1fr 84px 26px 26px;gap:8px;align-items:center;padding:6px 22px;position:relative}
+.row:hover{background:#fbf7ef}
+.row input.t,.row input.q{border:0;background:transparent;outline:none;padding:6px 4px;border-radius:6px;width:100%;min-width:0}
+.row input.t:focus,.row input.q:focus{background:var(--paper)}
+.row input.q{font:500 12px "JetBrains Mono",monospace;color:var(--muted);text-align:right}
+.chk{appearance:none;width:22px;height:22px;border:1.5px solid #cfc6b4;border-radius:7px;margin:0;display:grid;place-items:center;cursor:pointer;transition:.15s}
+.chk:hover{border-color:var(--leaf)}
+.chk:checked{background:var(--leaf);border-color:var(--leaf)}
+.chk:checked::after{content:"";width:10px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.del{border:0;background:none;color:#c2b9a7;font-size:18px;line-height:1;opacity:0;transition:.15s;padding:0}
+.row:hover .del,.del:focus{opacity:1}
+.del:hover{color:var(--accent)}
+.done input.t{text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:2px;color:var(--muted)}
+.basket{margin:8px 22px 0;padding-top:6px;border-top:1px dashed var(--line)}
+.basket .row{padding-left:0;padding-right:0}
+.bhead{display:flex;justify-content:space-between;align-items:center;padding:12px 0 2px}
+.link{border:0;background:none;color:var(--accent);font-weight:600;font-size:13px;padding:4px 0}
+.empty{padding:40px 22px;text-align:center;color:var(--muted)}
+.empty b{display:block;font:700 20px Fraunces,serif;color:var(--ink);margin-bottom:4px}
+
+/* votes */
+.vote{position:sticky;top:20px}
+.weeknav{display:flex;align-items:center;gap:4px}
+.weeknav button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:15px}
+.weeknav button:hover{border-color:var(--ink)}
+.wk{font:500 12px "JetBrains Mono",monospace;color:var(--muted);padding:6px 22px 0}
+.hint{padding:4px 22px 14px;font-size:13px;color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 16px}
+.day{border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;transition:.15s;min-width:0}
+.day:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px)}
+.day:disabled{opacity:.38;cursor:not-allowed}
+.day .dn{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.day .dd{font:700 20px/1 Fraunces,serif}
+.day .bar{width:8px;height:44px;border-radius:99px;background:#ebe4d5;position:relative;overflow:hidden}
+.day .bar span{position:absolute;inset:auto 0 0 0;background:var(--ink);border-radius:99px;transition:height .25s}
+.day .n{font:500 11px "JetBrains Mono",monospace;color:var(--muted)}
+.day.me{background:var(--leaf-soft);border-color:var(--leaf)}
+.day.me .bar span{background:var(--leaf)}
+.day.best{box-shadow:0 0 0 2px var(--accent)}
+.day.best::before{content:"★";position:absolute;top:-9px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;display:grid;place-items:center}
+.verdict{margin:16px 16px 0;padding:14px 16px;border-radius:12px;background:var(--ink);color:var(--paper);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.verdict small{display:block;color:#b9b1a2;font-size:12px}
+.verdict b{font:700 20px Fraunces,serif}
+.verdict.none{background:var(--paper);color:var(--muted);border:1px dashed var(--line)}
+.voters{padding:14px 22px 20px;display:flex;flex-direction:column;gap:8px}
+.voter{display:flex;align-items:center;gap:10px;font-size:13px}
+.voter .nm{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voter .ds{margin-left:auto;font:500 11px "JetBrains Mono",monospace;color:var(--muted);white-space:nowrap}
+
+/* name dialog */
+dialog{border:0;border-radius:18px;padding:28px;width:min(380px,92vw);background:var(--card);box-shadow:0 30px 80px -20px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(29,27,23,.45);backdrop-filter:blur(3px)}
+dialog h3{font:700 26px Fraunces,serif;margin:0 0 6px}
+dialog p{margin:0 0 18px;color:var(--muted);font-size:14px}
+dialog input{width:100%;height:46px;border:1px solid var(--line);border-radius:10px;padding:0 14px;background:var(--paper);outline:none;margin-bottom:12px}
+dialog input:focus{border-color:var(--ink)}
+dialog .btn{width:100%}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:13px;transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .vote{position:static;order:-1}
+}
+@media (max-width:560px){
+  .wrap{padding:20px 12px 40px}
+  .add{grid-template-columns:1fr 76px;padding:14px}
+  .add select{grid-column:1}
+  .add .btn{grid-column:2}
+  .row{padding:6px 14px;grid-template-columns:26px 1fr 64px 22px 22px}
+  .del{opacity:1}
+  .cat{padding:12px 14px 4px}
+  .chead{padding:16px 16px 0}
+  .wk,.hint{padding-left:16px;padding-right:16px}
+  .days{gap:4px;padding:0 10px}
+  .day .dd{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Grocery<em>.</em>planner</h1>
+      <div class="sub">One shared list. One shopping day. Everyone edits.</div>
+    </div>
+    <div class="hbar">
+      <span class="pill" id="status"><span class="dot"></span><span>Connecting…</span></span>
+      <button class="pill" id="share">Copy link</button>
+      <button class="pill" id="who" title="Change name"></button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <div class="chead"><h2>The list</h2><span class="count" id="count"></span></div>
+      <form class="add" id="addForm" autocomplete="off">
+        <input id="aName" placeholder="Add an item… e.g. Oat milk" maxlength="80" required>
+        <input id="aQty" class="qty" placeholder="qty" maxlength="16">
+        <select id="aCat"></select>
+        <button class="btn">Add</button>
+      </form>
+      <div class="list" id="list"></div>
+    </section>
+
+    <aside class="card vote">
+      <div class="chead">
+        <h2>Shop day</h2>
+        <div class="weeknav"><button id="prev" aria-label="Previous week">‹</button><button id="next" aria-label="Next week">›</button></div>
+      </div>
+      <div class="wk" id="wk"></div>
+      <div class="hint">Tap the days you're free to shop.</div>
+      <div class="days" id="days"></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="voters" id="voters"></div>
+    </aside>
+  </div>
+</div>
+
+<dialog id="nameDlg">
+  <form method="dialog" id="nameForm">
+    <h3>Who's this?</h3>
+    <p>Your name shows on items you add and on your shop-day votes.</p>
+    <input id="nameIn" placeholder="Your name" maxlength="24" required>
+    <button class="btn">Continue</button>
+  </form>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { firebaseConfig } from './config.js';
+
+const CATS = [
+  ['Produce','#3f7d4e'],['Dairy & Eggs','#d9a520'],['Meat & Fish','#c4473a'],['Bakery','#b07a45'],
+  ['Pantry','#7a5c9e'],['Frozen','#3c86b8'],['Drinks','#d06b9a'],['Household','#5f6b73'],['Other','#a39a88']
+];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const group = (new URLSearchParams(location.search).get('g') || 'main').replace(/[^\w-]/g,'').slice(0,40) || 'main';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- data stores ---------- */
+async function firebaseStore(cfg, g) {
+  const base = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  const { initializeApp } = await import(base + 'firebase-app.js');
+  const fs = await import(base + 'firebase-firestore.js');
+  const db = fs.getFirestore(initializeApp(cfg));
+  const items = fs.collection(db, 'groups', g, 'items');
+  const week = w => fs.doc(db, 'groups', g, 'weeks', w);
+  return {
+    live: true,
+    onItems: cb => fs.onSnapshot(items, s => cb(s.docs.map(d => {
+      const v = d.data();
+      return { id: d.id, ...v, t: v.createdAt?.toMillis?.() ?? Date.now() };
+    }))),
+    add: it => fs.addDoc(items, { ...it, createdAt: fs.serverTimestamp() }),
+    update: (id, p) => fs.updateDoc(fs.doc(items, id), p),
+    remove: id => fs.deleteDoc(fs.doc(items, id)),
+    onWeek: (w, cb) => fs.onSnapshot(week(w), s => cb(s.data()?.votes || {})),
+    vote: (w, name, days) => fs.setDoc(week(w), { votes: { [name]: days } }, { merge: true })
+  };
+}
+
+function localStore(g) {
+  const K = 'gp:data:' + g;
+  const load = () => JSON.parse(localStorage.getItem(K) || '{"items":{},"weeks":{}}');
+  const subs = new Set();
+  const emit = () => subs.forEach(f => f());
+  const save = d => { localStorage.setItem(K, JSON.stringify(d)); emit(); };
+  addEventListener('storage', e => e.key === K && emit());
+  const sub = f => { subs.add(f); f(); return () => subs.delete(f); };
+  return {
+    live: false,
+    onItems: cb => sub(() => cb(Object.entries(load().items).map(([id, v]) => ({ id, ...v })))),
+    add: it => { const d = load(); d.items[crypto.randomUUID()] = { ...it, t: Date.now() }; save(d); },
+    update: (id, p) => { const d = load(); if (d.items[id]) Object.assign(d.items[id], p); save(d); },
+    remove: id => { const d = load(); delete d.items[id]; save(d); },
+    onWeek: (w, cb) => sub(() => cb(load().weeks[w] || {})),
+    vote: (w, name, days) => { const d = load(); (d.weeks[w] ??= {})[name] = days; save(d); }
+  };
+}
+
+/* ---------- helpers ---------- */
+function mondayOf(d) { const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const fmt = (d, o) => d.toLocaleDateString('en-IE', o);
+function hue(name) { let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) % 360; return `hsl(${h} 45% 45%)`; }
+const initials = n => n.trim().split(/\s+/).map(p => p[0]).join('').slice(0,2).toUpperCase();
+const avatar = n => `<span class="av" style="background:${hue(n)}" title="${esc(n)}">${esc(initials(n))}</span>`;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 1800); }
+
+/* ---------- state ---------- */
+let me = localStorage.getItem('gp:name') || '';
+let items = [];
+let votes = {};
+let weekStart = mondayOf(new Date());
+let unWeek = null;
+let pendingRender = false;
+let store;
+
+/* ---------- name ---------- */
+function renderWho() { $('#who').innerHTML = me ? `${avatar(me)}<span>${esc(me)}</span>` : 'Set name'; }
+function askName() { $('#nameIn').value = me; $('#nameDlg').showModal(); $('#nameIn').focus(); }
+$('#nameForm').addEventListener('submit', () => {
+  const v = $('#nameIn').value.trim().slice(0, 24);
+  if (!v) return;
+  me = v; localStorage.setItem('gp:name', me); renderWho(); renderVotes();
+});
+$('#nameDlg').addEventListener('cancel', e => { if (!me) e.preventDefault(); });
+$('#who').onclick = askName;
+$('#share').onclick = async () => { try { await navigator.clipboard.writeText(location.href); toast('Link copied'); } catch { toast(location.href); } };
+
+/* ---------- list ---------- */
+$('#aCat').innerHTML = CATS.map(([c]) => `<option${c === 'Other' ? ' selected' : ''}>${c}</option>`).join('');
+
+$('#addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#aName').value.trim();
+  if (!name) return;
+  if (!me) return askName();
+  store.add({ name, qty: $('#aQty').value.trim(), cat: $('#aCat').value, by: me, done: false });
+  $('#aName').value = ''; $('#aQty').value = ''; $('#aName').focus();
+});
+
+function rowHTML(it) {
+  return `<div class="row${it.done ? ' done' : ''}" data-id="${it.id}">
+    <input type="checkbox" class="chk" ${it.done ? 'checked' : ''} aria-label="Bought">
+    <input class="t" value="${esc(it.name)}" maxlength="80" aria-label="Item">
+    <input class="q" value="${esc(it.qty)}" maxlength="16" placeholder="—" aria-label="Quantity">
+    ${it.by ? avatar(it.by) : '<span></span>'}
+    <button class="del" aria-label="Delete">×</button>
+  </div>`;
+}
+
+function renderList() {
+  const el = $('#list');
+  if (el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'checkbox') { pendingRender = true; return; }
+  pendingRender = false;
+  const sorted = [...items].sort((a, b) => a.t - b.t);
+  const todo = sorted.filter(i => !i.done), done = sorted.filter(i => i.done);
+  $('#count').textContent = `${todo.length} to get · ${done.length} in basket`;
+  if (!items.length) { el.innerHTML = `<div class="empty"><b>Nothing on the list yet</b>Add the first item above.</div>`; return; }
+  let html = '';
+  for (const [c, col] of CATS) {
+    const grp = todo.filter(i => (CATS.some(x => x[0] === i.cat) ? i.cat : 'Other') === c);
+    if (grp.length) html += `<div class="cat"><i style="background:${col}"></i>${c}</div>` + grp.map(rowHTML).join('');
+  }
+  if (!todo.length) html += `<div class="empty"><b>All done 🎉</b>Everything's in the basket.</div>`;
+  if (done.length) html += `<div class="basket"><div class="bhead"><span class="cat" style="padding:0">In the basket</span><button class="link" id="clear">Clear bought</button></div>${done.map(rowHTML).join('')}</div>`;
+  el.innerHTML = html;
+}
+
+$('#list').addEventListener('change', e => {
+  const row = e.target.closest('.row'); if (!row) return;
+  const id = row.dataset.id;
+  if (e.target.classList.contains('chk')) store.update(id, { done: e.target.checked });
+  else if (e.target.classList.contains('t')) { const v = e.target.value.trim(); v ? store.update(id, { name: v }) : store.remove(id); }
+  else if (e.target.classList.contains('q')) store.update(id, { qty: e.target.value.trim() });
+});
+$('#list').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.target.blur(); });
+$('#list').addEventListener('focusout', () => setTimeout(() => pendingRender && renderList()));
+$('#list').addEventListener('click', e => {
+  if (e.target.classList.contains('del')) store.remove(e.target.closest('.row').dataset.id);
+  if (e.target.id === 'clear' && confirmClear()) items.filter(i => i.done).forEach(i => store.remove(i.id));
+});
+function confirmClear() { const b = $('#clear'); if (b.dataset.armed) return true; b.dataset.armed = 1; b.textContent = 'Tap again to clear'; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Clear bought'; } }, 2500); return false; }
+
+/* ---------- votes ---------- */
+function watchWeek() {
+  unWeek?.();
+  votes = {};
+  unWeek = store.onWeek(iso(weekStart), v => { votes = v; renderVotes(); });
+  renderVotes();
+}
+
+function renderVotes() {
+  const end = addDays(weekStart, 6), today = new Date(); today.setHours(0,0,0,0);
+  const thisWeek = iso(weekStart) === iso(mondayOf(new Date()));
+  $('#wk').textContent = `${thisWeek ? 'THIS WEEK · ' : ''}${fmt(weekStart,{day:'numeric',month:'short'})} – ${fmt(end,{day:'numeric',month:'short'})}`;
+  $('#prev').disabled = iso(weekStart) <= iso(mondayOf(new Date()));
+  $('#prev').style.opacity = $('#prev').disabled ? .35 : 1;
+
+  const people = Object.entries(votes).filter(([, d]) => Array.isArray(d) && d.length);
+  const counts = DAYS.map((_, i) => people.filter(([, d]) => d.includes(i)).map(([n]) => n));
+  const mine = votes[me] || [];
+  const open = i => addDays(weekStart, i) >= today;
+  const max = Math.max(0, ...counts.filter((_, i) => open(i)).map(c => c.length));
+  const best = max ? counts.map((c, i) => c.length === max && open(i) ? i : -1).filter(i => i >= 0) : [];
+  const total = Math.max(people.length, 1);
+
+  $('#days').innerHTML = DAYS.map((d, i) => {
+    const date = addDays(weekStart, i);
+    return `<button class="day${mine.includes(i) ? ' me' : ''}${best.includes(i) ? ' best' : ''}" data-i="${i}" ${open(i) ? '' : 'disabled'} title="${esc(counts[i].join(', ') || 'No one yet')}">
+      <span class="dn">${d}</span><span class="dd">${date.getDate()}</span>
+      <span class="bar"><span style="height:${counts[i].length / total * 100}%"></span></span>
+      <span class="n">${counts[i].length}</span></button>`;
+  }).join('');
+
+  const v = $('#verdict');
+  if (best.length) {
+    const names = best.map(i => fmt(addDays(weekStart, i), { weekday: 'short', day: 'numeric' }));
+    v.className = 'verdict';
+    v.innerHTML = `<div><small>${best.length > 1 ? 'Tied best days' : 'Best day to shop'}</small><b>${names.join(' / ')}</b></div><div>${counts[best[0]].map(avatar).join('')}</div>`;
+  } else {
+    v.className = 'verdict none';
+    v.innerHTML = `<div><small>No votes yet</small>Pick the days you're free.</div>`;
+  }
+
+  $('#voters').innerHTML = people.length ? people.sort(([a], [b]) => a.localeCompare(b)).map(([n, d]) =>
+    `<div class="voter">${avatar(n)}<span class="nm">${esc(n)}${n === me ? ' (you)' : ''}</span><span class="ds">${[...d].sort().map(i => DAYS[i]).join(' ')}</span></div>`
+  ).join('') : '';
+}
+
+$('#days').addEventListener('click', e => {
+  const b = e.target.closest('.day'); if (!b || b.disabled) return;
+  if (!me) return askName();
+  const i = +b.dataset.i, cur = votes[me] || [];
+  const next = cur.includes(i) ? cur.filter(x => x !== i) : [...cur, i].sort();
+  store.vote(iso(weekStart), me, next);
+});
+$('#prev').onclick = () => { weekStart = addDays(weekStart, -7); watchWeek(); };
+$('#next').onclick = () => { weekStart = addDays(weekStart, 7); watchWeek(); };
+
+/* ---------- boot ---------- */
+renderWho();
+try {
+  store = firebaseConfig ? await firebaseStore(firebaseConfig, group) : localStore(group);
+} catch (err) {
+  console.error(err); store = localStore(group);
+}
+const st = $('#status');
+st.classList.toggle('demo', !store.live);
+st.lastElementChild.textContent = store.live ? `Live · ${group}` : 'Local demo — add Firebase config';
+store.onItems(list => { items = list; renderList(); });
+watchWeek();
+if (!me) askName();
+</script>
+</body>
+</html>
