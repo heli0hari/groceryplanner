@@ -1,13 +1,8 @@
-// Paste your Firebase web config here (Firebase console → Project settings → Your apps → Web app).
-// Leave as null to run in local demo mode (data stays in this browser only).
-export const firebaseConfig = null;
-
-// Example:
-// export const firebaseConfig = {
-//   apiKey: "AIza...",
-//   authDomain: "your-project.firebaseapp.com",
-//   projectId: "your-project",
-//   storageBucket: "your-project.appspot.com",
-//   messagingSenderId: "123456789",
-//   appId: "1:123456789:web:abc123"
-// };
+export const firebaseConfig = {
+  apiKey: "AIzaSyDGjZSaVBLH_tcBp6kdAgZ0EfVv0VEiLv4",
+  authDomain: "groceryplanner-79e46.firebaseapp.com",
+  projectId: "groceryplanner-79e46",
+  storageBucket: "groceryplanner-79e46.firebasestorage.app",
+  messagingSenderId: "391592393154",
+  appId: "1:391592393154:web:1e8e5b7ec89992a19f7e5b"
+};
