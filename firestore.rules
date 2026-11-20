@@ -10,6 +10,13 @@ service cloud.firestore {
         && request.resource.data.name.size() <= 80;
     }
 
+    match /groups/{group}/users/{user} {
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['avatar'])
+        && request.resource.data.avatar is string
+        && request.resource.data.avatar.size() < 60000;
+    }
+
     match /groups/{group}/weeks/{week} {
       allow read: if true;
       allow write: if request.resource.data.keys().hasOnly(['votes']);
